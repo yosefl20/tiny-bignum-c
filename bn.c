@@ -100,7 +100,7 @@ void bignum_from_string(struct bn* n, char* str, int nbytes)
   require(n, "n is null");
   require(str, "str is null");
   require(nbytes > 0, "nbytes must be positive");
-  require((nbytes & 1) == 0, "string format must be in hex -> equal number of bytes");
+  //require((nbytes & 1) == 0, "string format must be in hex -> equal number of bytes");
 
   bignum_init(n);
 
@@ -116,6 +116,17 @@ void bignum_from_string(struct bn* n, char* str, int nbytes)
     sscanf(&str[i], SSCANF_FORMAT_STR, &tmp);
     n->array[j] = tmp;
     i -= (2 * WORD_SIZE); /* step WORD_SIZE hex-byte(s) back in the string. */
+    j += 1;               /* step one element forward in the array. */
+  }
+  if( i < 0  && i > -8 )
+  {
+    // fill incompleted digits
+    const int DWORDSIZE=2*WORD_SIZE;
+    char tstr[DWORDSIZE];
+    memset(tstr,0,DWORDSIZE);
+    memcpy(tstr,str,DWORDSIZE+i);
+    sscanf(tstr, "%x", &tmp);
+    n->array[j] = tmp;
     j += 1;               /* step one element forward in the array. */
   }
 }
